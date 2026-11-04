@@ -1,0 +1,1477 @@
+/* ==========================================================================
+   File Upload — Liquid Glass UI
+   The iOS 26/27 design language, adapted for the web.
+
+   Self-contained and framework-free: every class is prefixed `fu-` and every
+   token is scoped to `.fu-root`, so it drops into any host (Tailwind or not)
+   without leaking styles in or out.
+
+   Layering follows Apple's HIG: content (lists, tiles, cards) sits on solid
+   grouped surfaces; controls and navigation (toolbar, segmented control,
+   sheet, buttons) float above it in translucent glass.
+   ========================================================================== */
+
+/* ---------- Tokens ---------------------------------------------------------- */
+
+.fu-root {
+  /* System colours (iOS 26+ palette) */
+  --fu-blue: #0088ff;
+  --fu-green: #34c759;
+  --fu-red: #ff383c;
+  --fu-orange: #ff8d28;
+  --fu-yellow: #ffcc00;
+  --fu-teal: #00c3d0;
+  --fu-indigo: #6155f5;
+  --fu-purple: #cb30e0;
+  --fu-pink: #ff2d55;
+  --fu-gray: #8e8e93;
+
+  /* Labels & separators */
+  --fu-label: #000;
+  --fu-label-2: rgb(60 60 67 / 0.6);
+  --fu-label-3: rgb(60 60 67 / 0.3);
+  --fu-separator: rgb(60 60 67 / 0.16);
+
+  /* Grouped backgrounds & fills */
+  --fu-bg: #f2f2f7;
+  --fu-surface: #fff;
+  --fu-surface-2: #f2f2f7;
+  --fu-fill: rgb(120 120 128 / 0.2);
+  --fu-fill-2: rgb(120 120 128 / 0.16);
+  --fu-fill-3: rgb(118 118 128 / 0.12);
+
+  /* Liquid Glass material */
+  --fu-glass: rgb(255 255 255 / 0.58);
+  --fu-glass-strong: rgb(255 255 255 / 0.78);
+  --fu-glass-rim: rgb(255 255 255 / 0.95);
+  --fu-glass-rim-soft: rgb(255 255 255 / 0.4);
+  --fu-glass-edge: rgb(0 0 0 / 0.06);
+  --fu-glass-blur: 24px;
+  --fu-glass-shadow:
+    0 0.5px 1px rgb(0 0 0 / 0.05),
+    0 6px 16px -4px rgb(0 0 0 / 0.1),
+    0 22px 44px -18px rgb(0 0 0 / 0.16);
+  --fu-surface-shadow: 0 0.5px 1px rgb(0 0 0 / 0.04), 0 2px 8px -2px rgb(0 0 0 / 0.05);
+
+  /* Concentric corner radii */
+  --fu-radius-sheet: 38px;
+  --fu-radius-card: 26px;
+  --fu-radius-tile: 20px;
+  --fu-radius-thumb: 11px;
+
+  /* Motion */
+  --fu-spring: linear(0, 0.006, 0.025 2.8%, 0.101 6.1%, 0.539 18.9%, 0.721 25.3%, 0.849 31.5%, 0.937 38.1%, 0.968 41.8%, 0.991 45.7%, 1.006 50.1%, 1.015 55%, 1.017 63.9%, 1.001 85.9%, 1);
+  --fu-spring-bouncy: linear(0, 0.007, 0.029 2.2%, 0.118 4.7%, 0.625 14.4%, 0.826 19%, 0.902, 0.962 24.8%, 1.008 28.2%, 1.04, 1.055 33.8%, 1.059 36%, 1.056 38.3%, 1.037 44.4%, 1.009 52.2%, 0.998 59.9%, 0.995 68.9%, 1);
+  --fu-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Type: SF Pro on Apple platforms, the platform UI font elsewhere */
+  --fu-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", "Helvetica Neue", "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  --fu-font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro", "Helvetica Neue", "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
+  --fu-font-rounded: ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+
+  color: var(--fu-label);
+  font-family: var(--fu-font);
+  font-size: 17px;
+  line-height: 22px;
+  letter-spacing: -0.41px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (prefers-color-scheme: dark) {
+  .fu-root {
+    --fu-blue: #0091ff;
+    --fu-green: #30d158;
+    --fu-red: #ff4245;
+    --fu-orange: #ff9230;
+    --fu-yellow: #ffd600;
+    --fu-teal: #00d2e0;
+    --fu-indigo: #6d7cff;
+    --fu-purple: #db34f2;
+    --fu-pink: #ff375f;
+    --fu-gray: #98989d;
+
+    --fu-label: #fff;
+    --fu-label-2: rgb(235 235 245 / 0.6);
+    --fu-label-3: rgb(235 235 245 / 0.3);
+    --fu-separator: rgb(84 84 88 / 0.55);
+
+    --fu-bg: #000;
+    --fu-surface: #1c1c1e;
+    --fu-surface-2: #2c2c2e;
+    --fu-fill: rgb(120 120 128 / 0.36);
+    --fu-fill-2: rgb(120 120 128 / 0.32);
+    --fu-fill-3: rgb(118 118 128 / 0.24);
+
+    --fu-glass: rgb(38 38 42 / 0.55);
+    --fu-glass-strong: rgb(48 48 52 / 0.78);
+    --fu-glass-rim: rgb(255 255 255 / 0.3);
+    --fu-glass-rim-soft: rgb(255 255 255 / 0.07);
+    --fu-glass-edge: rgb(255 255 255 / 0.06);
+    --fu-glass-shadow:
+      0 0.5px 1px rgb(0 0 0 / 0.4),
+      0 8px 20px -6px rgb(0 0 0 / 0.55),
+      0 26px 50px -20px rgb(0 0 0 / 0.7);
+    --fu-surface-shadow: none;
+  }
+}
+
+/* ---------- Base ------------------------------------------------------------
+   Wrapped in :where() for zero specificity, so every component class below
+   wins over these resets regardless of selector shape. */
+
+:where(.fu-root) :where(*, *::before, *::after) {
+  box-sizing: border-box;
+}
+
+:where(.fu-root) :where(button) {
+  appearance: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+}
+
+:where(.fu-root) :where(button:disabled) {
+  cursor: default;
+}
+
+:where(.fu-root) :where(:focus-visible) {
+  outline: 3px solid color-mix(in srgb, var(--fu-blue) 60%, transparent);
+  outline-offset: 2px;
+}
+
+:where(.fu-root) :where(img) {
+  display: block;
+}
+
+.fu-visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------- Page shell ---------------------------------------------------- */
+
+.fu-page {
+  position: relative;
+  isolation: isolate;
+  min-height: 100dvh;
+  background: var(--fu-bg);
+}
+
+/* Ambient light behind the content: gives the glass something to refract. */
+.fu-page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(60vmax 42vmax at 8% -6%, color-mix(in srgb, var(--fu-blue) 20%, transparent), transparent 62%),
+    radial-gradient(48vmax 36vmax at 96% 4%, color-mix(in srgb, var(--fu-purple) 13%, transparent), transparent 64%),
+    radial-gradient(56vmax 40vmax at 72% 108%, color-mix(in srgb, var(--fu-teal) 14%, transparent), transparent 66%);
+}
+
+.fu-library {
+  width: 100%;
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: calc(env(safe-area-inset-top) + 52px) max(20px, env(safe-area-inset-right)) calc(env(safe-area-inset-bottom) + 132px)
+    max(20px, env(safe-area-inset-left));
+}
+
+/* ---------- Glass material ---------------------------------------------- */
+
+.fu-glass {
+  position: relative;
+  isolation: isolate;
+  background: var(--fu-glass);
+  -webkit-backdrop-filter: blur(var(--fu-glass-blur)) saturate(190%);
+  backdrop-filter: blur(var(--fu-glass-blur)) saturate(190%);
+  box-shadow: var(--fu-glass-shadow), inset 0 0 0 0.5px var(--fu-glass-edge);
+}
+
+/* Specular rim: light catching the top-left and bottom-right edges. */
+.fu-glass::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  padding: 1px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    150deg,
+    var(--fu-glass-rim) 0%,
+    var(--fu-glass-rim-soft) 22%,
+    transparent 42%,
+    transparent 62%,
+    var(--fu-glass-rim-soft) 84%,
+    var(--fu-glass-rim) 100%
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+}
+
+/* ---------- Navigation bar (scroll-edge effect) ------------------------- */
+
+.fu-navbar {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  height: calc(env(safe-area-inset-top) + 54px);
+  padding: env(safe-area-inset-top) 20px 0;
+  pointer-events: none;
+}
+
+.fu-navbar::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 -28px;
+  z-index: -1;
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--fu-bg) 82%, transparent) 30%, transparent);
+  -webkit-backdrop-filter: blur(10px) saturate(160%);
+  backdrop-filter: blur(10px) saturate(160%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 45%, transparent);
+  mask-image: linear-gradient(to bottom, #000 45%, transparent);
+  opacity: 0;
+  transition: opacity 0.3s var(--fu-ease-out);
+}
+
+.fu-navbar__title {
+  align-self: center;
+  font-weight: 600;
+  font-size: 17px;
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 0.25s var(--fu-ease-out),
+    transform 0.45s var(--fu-spring);
+}
+
+.fu-navbar[data-scrolled="true"]::before,
+.fu-navbar[data-scrolled="true"] .fu-navbar__title {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---------- Header ------------------------------------------------------- */
+
+.fu-header {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.fu-large-title {
+  margin: 0;
+  font-family: var(--fu-font-display);
+  font-weight: 700;
+  font-size: 34px;
+  line-height: 41px;
+  letter-spacing: 0.37px;
+}
+
+.fu-header__subtitle {
+  margin: -10px 0 0;
+  color: var(--fu-label-2);
+  font-size: 15px;
+  line-height: 20px;
+  letter-spacing: -0.23px;
+  font-variant-numeric: tabular-nums;
+}
+
+.fu-provider-caption {
+  margin: -4px 0 0;
+  padding-left: 16px;
+  color: var(--fu-label-2);
+  font-size: 13px;
+  line-height: 18px;
+  letter-spacing: -0.08px;
+}
+
+/* ---------- Segmented control -------------------------------------------- */
+
+.fu-segmented {
+  --fu-press: 1;
+  position: relative;
+  display: grid;
+  grid-auto-columns: 1fr;
+  grid-auto-flow: column;
+  width: 100%;
+  max-width: 440px;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--fu-fill-3);
+}
+
+.fu-segmented:active {
+  --fu-press: 1.04;
+}
+
+.fu-segmented__thumb {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc((100% - 6px) / var(--fu-count));
+  border-radius: 999px;
+  background: var(--fu-glass-strong);
+  box-shadow: 0 3px 8px rgb(0 0 0 / 0.12), 0 3px 1px rgb(0 0 0 / 0.04), inset 0 0 0 0.5px var(--fu-glass-edge);
+  transform: translateX(calc(100% * var(--fu-index))) scale(var(--fu-press));
+  transition: transform 0.55s var(--fu-spring-bouncy);
+}
+
+@media (prefers-color-scheme: dark) {
+  .fu-segmented__thumb {
+    background: #5a5a5f;
+  }
+}
+
+.fu-segmented__option {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-weight: 590;
+  font-size: 15px;
+  letter-spacing: -0.23px;
+  transition: opacity 0.2s;
+}
+
+.fu-segmented__option svg {
+  width: 18px;
+  height: 18px;
+}
+
+.fu-segmented__option[aria-checked="false"] {
+  color: var(--fu-label-2);
+}
+
+/* ---------- Buttons ----------------------------------------------------- */
+
+.fu-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 17px;
+  white-space: nowrap;
+  transition:
+    transform 0.4s var(--fu-spring-bouncy),
+    filter 0.2s,
+    opacity 0.2s;
+}
+
+.fu-button:active:not(:disabled) {
+  transform: scale(1.06);
+  filter: brightness(1.08);
+}
+
+.fu-button:disabled {
+  opacity: 0.4;
+}
+
+.fu-button svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Tinted, prominent glass: the primary action. */
+.fu-button--prominent {
+  color: #fff;
+  background:
+    linear-gradient(to bottom, rgb(255 255 255 / 0.22), transparent 60%),
+    var(--fu-blue);
+  box-shadow:
+    0 8px 22px -8px color-mix(in srgb, var(--fu-blue) 75%, transparent),
+    inset 0 1px 0 rgb(255 255 255 / 0.35),
+    inset 0 -1px 0 rgb(0 0 0 / 0.08);
+}
+
+.fu-button--plain {
+  color: var(--fu-blue);
+  background: var(--fu-fill-3);
+  font-weight: 590;
+  font-size: 15px;
+  min-height: 34px;
+  padding: 0 14px;
+}
+
+.fu-icon-button {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  color: var(--fu-label);
+  transition: transform 0.4s var(--fu-spring-bouncy);
+}
+
+.fu-icon-button:active {
+  transform: scale(1.1);
+}
+
+.fu-icon-button svg {
+  width: 20px;
+  height: 20px;
+}
+
+.fu-icon-button[aria-pressed="true"] {
+  color: var(--fu-blue);
+  background: color-mix(in srgb, var(--fu-blue) 14%, transparent);
+}
+
+/* ---------- Floating toolbar --------------------------------------------- */
+
+.fu-toolbar {
+  position: fixed;
+  bottom: calc(env(safe-area-inset-bottom) + 18px);
+  left: 50%;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px;
+  border-radius: 999px;
+  transform: translateX(-50%);
+}
+
+.fu-toolbar__divider {
+  width: 0.5px;
+  height: 24px;
+  margin: 0 6px;
+  background: var(--fu-separator);
+}
+
+.fu-toolbar .fu-button--prominent {
+  min-height: 46px;
+  padding: 0 22px 0 18px;
+}
+
+/* ---------- Grouped sections & rows -------------------------------------- */
+
+.fu-section {
+  margin-top: 30px;
+}
+
+.fu-section__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 0 0 8px;
+  padding: 0 16px;
+}
+
+.fu-section__title {
+  margin: 0;
+  font-weight: 700;
+  font-size: 22px;
+  line-height: 28px;
+  letter-spacing: -0.26px;
+}
+
+.fu-section__accessory {
+  color: var(--fu-label-2);
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+
+.fu-group {
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  border-radius: var(--fu-radius-card);
+  background: var(--fu-surface);
+  box-shadow: var(--fu-surface-shadow);
+  list-style: none;
+}
+
+.fu-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 64px;
+  padding: 10px 16px;
+  text-align: left;
+}
+
+/* Inset separators, aligned with the text column like UIKit. */
+.fu-row + .fu-row::before,
+.fu-group > li + li > .fu-row::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: var(--fu-separator-inset, 74px);
+  height: 0.5px;
+  background: var(--fu-separator);
+}
+
+button.fu-row {
+  transition: background-color 0.25s;
+}
+
+button.fu-row:active {
+  background: var(--fu-fill-3);
+  transition-duration: 0s;
+}
+
+.fu-row__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.fu-row__title {
+  display: block;
+  overflow: hidden;
+  font-size: 17px;
+  line-height: 22px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.fu-row__subtitle {
+  display: block;
+  margin-top: 2px;
+  overflow: hidden;
+  color: var(--fu-label-2);
+  font-size: 13px;
+  line-height: 18px;
+  letter-spacing: -0.08px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
+}
+
+.fu-row__subtitle[data-tone="error"] {
+  color: var(--fu-red);
+}
+
+.fu-row__chevron {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  color: var(--fu-label-3);
+}
+
+/* ---------- Drop zone ---------------------------------------------------- */
+
+.fu-dropzone {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 18px;
+  border-radius: var(--fu-radius-card);
+  background: var(--fu-surface);
+  box-shadow: var(--fu-surface-shadow), inset 0 0 0 1.5px transparent;
+  text-align: left;
+  transition:
+    transform 0.5s var(--fu-spring-bouncy),
+    box-shadow 0.25s;
+}
+
+.fu-dropzone:active,
+.fu-dropzone[data-active="true"] {
+  transform: scale(0.985);
+}
+
+.fu-dropzone[data-active="true"] {
+  box-shadow: var(--fu-surface-shadow), inset 0 0 0 2px var(--fu-blue);
+}
+
+.fu-dropzone__icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  color: #fff;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--fu-blue) 70%, #fff), var(--fu-blue));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.4), 0 6px 14px -6px var(--fu-blue);
+}
+
+.fu-dropzone__icon svg {
+  width: 26px;
+  height: 26px;
+}
+
+.fu-dropzone__title {
+  display: block;
+  font-weight: 600;
+  font-size: 17px;
+}
+
+.fu-dropzone__hint {
+  display: block;
+  margin-top: 2px;
+  color: var(--fu-label-2);
+  font-size: 13px;
+  line-height: 18px;
+  letter-spacing: -0.08px;
+}
+
+.fu-dropzone__hint kbd {
+  padding: 0 4px;
+  border-radius: 4px;
+  background: var(--fu-fill-3);
+  font: inherit;
+}
+
+/* ---------- Usage card (styled after Settings › iPhone Storage) ---------- */
+
+.fu-usage {
+  margin-bottom: 14px;
+  padding: 18px;
+  border-radius: var(--fu-radius-card);
+  background: var(--fu-surface);
+  box-shadow: var(--fu-surface-shadow);
+}
+
+.fu-usage__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.fu-usage__icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  color: #fff;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--fu-indigo) 65%, #fff), var(--fu-indigo));
+}
+
+.fu-usage__icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.fu-usage__title {
+  flex: 1;
+  min-width: 0;
+}
+
+.fu-usage__title strong {
+  display: block;
+  font-weight: 600;
+  font-size: 17px;
+}
+
+.fu-usage__title span {
+  color: var(--fu-label-2);
+  font-size: 13px;
+  letter-spacing: -0.08px;
+}
+
+.fu-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-family: var(--fu-font-rounded);
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 18px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.fu-pill--green {
+  color: color-mix(in srgb, var(--fu-green) 78%, var(--fu-label));
+  background: color-mix(in srgb, var(--fu-green) 16%, transparent);
+}
+
+.fu-meter {
+  display: flex;
+  height: 10px;
+  margin: 16px 0 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--fu-fill-3);
+}
+
+.fu-meter__segment {
+  height: 100%;
+  transition: flex-basis 0.8s var(--fu-spring);
+}
+
+.fu-meter__segment--stored {
+  background: var(--fu-indigo);
+}
+
+.fu-meter__segment--saved {
+  background: color-mix(in srgb, var(--fu-green) 75%, transparent);
+}
+
+.fu-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 0 0 14px;
+  color: var(--fu-label-2);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.fu-legend span::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 5px;
+  border-radius: 50%;
+  background: var(--fu-dot);
+}
+
+.fu-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+
+.fu-stats div {
+  min-width: 0;
+}
+
+.fu-stats dt {
+  color: var(--fu-label-2);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.fu-stats dd {
+  margin: 2px 0 0;
+  overflow: hidden;
+  font-family: var(--fu-font-rounded);
+  font-weight: 600;
+  font-size: 17px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 520px) {
+  .fu-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ---------- Progress ring & activity indicator --------------------------- */
+
+.fu-progress {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  color: var(--fu-blue);
+}
+
+.fu-progress circle {
+  fill: none;
+  stroke-width: 2.6;
+}
+
+.fu-progress__track {
+  stroke: var(--fu-fill);
+}
+
+.fu-progress__value {
+  stroke: currentColor;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.3s var(--fu-ease-out);
+}
+
+.fu-progress__stop {
+  fill: currentColor;
+}
+
+.fu-spinner {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  color: var(--fu-label-2);
+  animation: fu-spin 0.8s steps(8) infinite;
+}
+
+.fu-spinner line {
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
+
+@keyframes fu-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.fu-status-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  color: #fff;
+}
+
+.fu-status-icon svg {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2.6;
+}
+
+.fu-status-icon--done {
+  background: var(--fu-green);
+  animation: fu-pop 0.5s var(--fu-spring-bouncy);
+}
+
+.fu-status-icon--failed {
+  background: var(--fu-red);
+}
+
+@keyframes fu-pop {
+  from {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+}
+
+.fu-upload-row {
+  animation: fu-row-in 0.45s var(--fu-spring);
+}
+
+@keyframes fu-row-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+/* ---------- Thumbnails & file glyphs ------------------------------------ */
+
+.fu-thumb {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  overflow: hidden;
+  border-radius: var(--fu-radius-thumb);
+  background: var(--fu-surface-2);
+}
+
+.fu-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.fu-glyph {
+  --fu-tint: var(--fu-gray);
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 2px;
+  width: 100%;
+  height: 100%;
+  color: var(--fu-tint);
+  background: color-mix(in srgb, var(--fu-tint) 13%, var(--fu-surface));
+}
+
+.fu-glyph svg {
+  width: 60%;
+  height: auto;
+  aspect-ratio: 1;
+}
+
+.fu-glyph__label {
+  font-family: var(--fu-font-rounded);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.4px;
+}
+
+.fu-glyph[data-kind="pdf"] { --fu-tint: var(--fu-red); }
+.fu-glyph[data-kind="text"] { --fu-tint: var(--fu-blue); }
+.fu-glyph[data-kind="video"] { --fu-tint: var(--fu-purple); }
+.fu-glyph[data-kind="audio"] { --fu-tint: var(--fu-pink); }
+.fu-glyph[data-kind="image"] { --fu-tint: var(--fu-teal); }
+.fu-glyph[data-kind="archive"] { --fu-tint: var(--fu-orange); }
+
+/* ---------- Grid ---------------------------------------------------------- */
+
+.fu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+  gap: 22px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (max-width: 520px) {
+  .fu-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px 12px;
+  }
+}
+
+.fu-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  text-align: center;
+}
+
+.fu-tile__media {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: var(--fu-radius-tile);
+  background: var(--fu-surface);
+  box-shadow: var(--fu-surface-shadow), inset 0 0 0 0.5px var(--fu-separator);
+  transition: transform 0.45s var(--fu-spring-bouncy);
+}
+
+.fu-tile:active .fu-tile__media {
+  transform: scale(0.96);
+}
+
+.fu-tile__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: fu-fade-in 0.4s var(--fu-ease-out);
+}
+
+.fu-tile__media .fu-glyph svg {
+  width: 36%;
+}
+
+.fu-tile__media .fu-glyph__label {
+  font-size: 12px;
+}
+
+@keyframes fu-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.fu-tile__badge {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 7px;
+  border-radius: 999px;
+  color: #fff;
+  background: rgb(0 0 0 / 0.35);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  backdrop-filter: blur(12px) saturate(180%);
+  font-family: var(--fu-font-rounded);
+  font-weight: 600;
+  font-size: 11px;
+  line-height: 14px;
+}
+
+.fu-tile__badge svg {
+  width: 11px;
+  height: 11px;
+}
+
+.fu-tile__name {
+  display: -webkit-box;
+  overflow: hidden;
+  padding: 0 4px;
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 17px;
+  letter-spacing: -0.08px;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.fu-tile__meta {
+  margin-top: -6px;
+  color: var(--fu-label-2);
+  font-size: 12px;
+  line-height: 16px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Empty, error & loading states ------------------------------- */
+
+.fu-empty {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.fu-empty__icon {
+  width: 52px;
+  height: 52px;
+  margin-bottom: 6px;
+  color: var(--fu-label-3);
+}
+
+.fu-empty__title {
+  margin: 0;
+  font-weight: 700;
+  font-size: 22px;
+  line-height: 28px;
+}
+
+.fu-empty__message {
+  max-width: 340px;
+  margin: 0 0 10px;
+  color: var(--fu-label-2);
+  font-size: 15px;
+  line-height: 20px;
+}
+
+.fu-empty code {
+  padding: 1px 5px;
+  border-radius: 6px;
+  background: var(--fu-fill-3);
+  font-size: 13px;
+}
+
+.fu-skeleton {
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+  background: var(--fu-fill-3);
+}
+
+.fu-skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 20%, rgb(255 255 255 / 0.28) 50%, transparent 80%);
+  transform: translateX(-100%);
+  animation: fu-shimmer 1.4s infinite;
+}
+
+@keyframes fu-shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.fu-sentinel {
+  display: grid;
+  place-items: center;
+  height: 64px;
+}
+
+/* ---------- Sheet --------------------------------------------------------- */
+
+.fu-sheet {
+  width: calc(100% - 16px);
+  max-width: 560px;
+  max-height: calc(100dvh - env(safe-area-inset-top) - 24px);
+  margin: auto auto max(8px, env(safe-area-inset-bottom));
+  padding: 0;
+  overflow: hidden auto;
+  overscroll-behavior: contain;
+  border: 0;
+  border-radius: var(--fu-radius-sheet);
+  color: var(--fu-label);
+  background: var(--fu-glass-strong);
+  -webkit-backdrop-filter: blur(40px) saturate(190%);
+  backdrop-filter: blur(40px) saturate(190%);
+  box-shadow: var(--fu-glass-shadow), inset 0 0 0 0.5px var(--fu-glass-edge);
+  scrollbar-width: none;
+}
+
+.fu-sheet[open] {
+  animation: fu-sheet-in 0.6s var(--fu-spring);
+}
+
+.fu-sheet[data-closing="true"] {
+  animation: fu-sheet-out 0.28s var(--fu-ease-out) forwards;
+}
+
+.fu-sheet::backdrop {
+  background: rgb(0 0 0 / 0.28);
+  animation: fu-fade-in 0.3s var(--fu-ease-out);
+}
+
+.fu-sheet[data-closing="true"]::backdrop {
+  animation: fu-fade-out 0.28s var(--fu-ease-out) forwards;
+}
+
+@media (min-width: 720px) {
+  .fu-sheet {
+    margin: auto;
+  }
+
+  .fu-sheet[open] {
+    animation-name: fu-sheet-in-centered;
+  }
+
+  .fu-sheet[data-closing="true"] {
+    animation-name: fu-sheet-out-centered;
+  }
+}
+
+@keyframes fu-sheet-in {
+  from {
+    transform: translateY(105%);
+  }
+}
+
+@keyframes fu-sheet-out {
+  to {
+    transform: translateY(105%);
+  }
+}
+
+@keyframes fu-sheet-in-centered {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.94);
+  }
+}
+
+@keyframes fu-sheet-out-centered {
+  to {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+}
+
+@keyframes fu-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+.fu-sheet__grabber {
+  width: 36px;
+  height: 5px;
+  margin: 6px auto 0;
+  border-radius: 999px;
+  background: var(--fu-label-3);
+}
+
+@media (min-width: 720px) {
+  .fu-sheet__grabber {
+    visibility: hidden;
+  }
+}
+
+.fu-sheet__header {
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 14px 0;
+}
+
+.fu-sheet__title {
+  margin: 0;
+  overflow: hidden;
+  font-weight: 600;
+  font-size: 17px;
+  text-align: center;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.fu-sheet__body {
+  display: grid;
+  gap: 18px;
+  padding: 14px 16px 18px;
+}
+
+.fu-preview {
+  display: grid;
+  place-items: center;
+  min-height: 180px;
+  max-height: 46dvh;
+  overflow: hidden;
+  border-radius: var(--fu-radius-card);
+  background: var(--fu-fill-3);
+}
+
+.fu-preview img {
+  max-width: 100%;
+  max-height: 46dvh;
+  object-fit: contain;
+}
+
+.fu-preview .fu-glyph {
+  width: 100%;
+  min-height: 200px;
+  gap: 4px;
+  background: none;
+}
+
+.fu-preview .fu-glyph svg {
+  width: 72px;
+}
+
+.fu-preview .fu-glyph__label {
+  font-size: 15px;
+}
+
+.fu-sheet .fu-group {
+  --fu-separator-inset: 16px;
+  background: color-mix(in srgb, var(--fu-surface) 82%, transparent);
+  box-shadow: none;
+}
+
+.fu-info-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 46px;
+  padding: 12px 16px;
+}
+
+.fu-info-row dt {
+  flex: none;
+  color: var(--fu-label);
+}
+
+.fu-info-row dd {
+  margin: 0;
+  overflow: hidden;
+  color: var(--fu-label-2);
+  text-align: right;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
+}
+
+.fu-info-row dd .fu-pill {
+  margin-left: 6px;
+  vertical-align: 1px;
+}
+
+.fu-action {
+  --fu-separator-inset: 50px;
+  min-height: 50px;
+  gap: 12px;
+  color: var(--fu-blue);
+  text-decoration: none;
+}
+
+a.fu-action:active {
+  background: var(--fu-fill-3);
+}
+
+.fu-action + .fu-action::before {
+  left: 50px;
+}
+
+.fu-action[data-tone="cancel"] {
+  justify-content: center;
+  font-weight: 600;
+}
+
+.fu-action svg {
+  flex: none;
+  width: 22px;
+  height: 22px;
+}
+
+.fu-action[data-tone="destructive"] {
+  color: var(--fu-red);
+}
+
+.fu-action[data-tone="destructive-prominent"] {
+  justify-content: center;
+  color: #fff;
+  background: var(--fu-red);
+  font-weight: 600;
+}
+
+.fu-action[data-tone="destructive-prominent"]:active {
+  background: color-mix(in srgb, var(--fu-red) 85%, #000);
+}
+
+.fu-confirm {
+  display: grid;
+  gap: 10px;
+  animation: fu-row-in 0.4s var(--fu-spring);
+}
+
+.fu-confirm__message {
+  margin: 0;
+  padding: 0 16px;
+  color: var(--fu-label-2);
+  font-size: 13px;
+  line-height: 18px;
+  text-align: center;
+}
+
+.fu-inline-error {
+  margin: 0;
+  padding: 0 16px;
+  color: var(--fu-red);
+  font-size: 13px;
+  text-align: center;
+}
+
+/* ---------- Toast (HUD) -------------------------------------------------- */
+
+.fu-toast {
+  position: fixed;
+  top: calc(env(safe-area-inset-top) + 12px);
+  left: 50%;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px 10px 14px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 15px;
+  transform: translateX(-50%);
+  animation: fu-toast-in 0.55s var(--fu-spring-bouncy);
+}
+
+.fu-toast svg {
+  width: 20px;
+  height: 20px;
+  color: var(--fu-green);
+}
+
+.fu-toast[data-tone="error"] svg {
+  color: var(--fu-red);
+}
+
+@keyframes fu-toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -24px) scale(0.9);
+  }
+}
+
+/* ---------- Full-page drop overlay -------------------------------------- */
+
+.fu-drop-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  pointer-events: none;
+  background: color-mix(in srgb, var(--fu-blue) 10%, transparent);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  animation: fu-fade-in 0.2s var(--fu-ease-out);
+}
+
+.fu-drop-overlay__card {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 30px 40px;
+  border-radius: var(--fu-radius-sheet);
+  text-align: center;
+  animation: fu-pop 0.5s var(--fu-spring-bouncy);
+}
+
+.fu-drop-overlay__card svg {
+  width: 44px;
+  height: 44px;
+  color: var(--fu-blue);
+}
+
+.fu-drop-overlay__card strong {
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.fu-drop-overlay__card span {
+  color: var(--fu-label-2);
+  font-size: 15px;
+}
+
+/* ---------- Accessibility preferences ----------------------------------- */
+
+/* iOS: Settings › Accessibility › Display › Reduce Transparency */
+@media (prefers-reduced-transparency: reduce) {
+  .fu-root {
+    --fu-glass: var(--fu-surface);
+    --fu-glass-strong: var(--fu-surface);
+  }
+
+  .fu-glass,
+  .fu-sheet,
+  .fu-navbar::before,
+  .fu-tile__badge,
+  .fu-drop-overlay {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .fu-page::before {
+    display: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .fu-root {
+    --fu-separator: rgb(60 60 67 / 0.5);
+    --fu-glass-edge: rgb(0 0 0 / 0.35);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fu-root *,
+  .fu-root *::before,
+  .fu-root *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+
+  .fu-spinner {
+    animation: fu-spin 2.4s steps(8) infinite !important;
+  }
+}

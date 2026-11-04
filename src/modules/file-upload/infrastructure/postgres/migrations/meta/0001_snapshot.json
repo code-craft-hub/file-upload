@@ -1,0 +1,309 @@
+{
+  "id": "b4eeaa34-0250-4ca9-9254-6aaca2578a99",
+  "prevId": "f12f0e64-9ed3-4d38-9d1d-db898281eb67",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "file_upload.blob_chunks": {
+      "name": "blob_chunks",
+      "schema": "file_upload",
+      "columns": {
+        "blob_id": {
+          "name": "blob_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "seq": {
+          "name": "seq",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "data": {
+          "name": "data",
+          "type": "bytea",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "blob_chunks_blob_id_blobs_id_fk": {
+          "name": "blob_chunks_blob_id_blobs_id_fk",
+          "tableFrom": "blob_chunks",
+          "columnsFrom": [
+            "blob_id"
+          ],
+          "tableTo": "blobs",
+          "schemaTo": "file_upload",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {
+        "blob_chunks_pkey": {
+          "name": "blob_chunks_pkey",
+          "columns": [
+            "blob_id",
+            "seq"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "blob_chunks_seq_non_negative": {
+          "name": "blob_chunks_seq_non_negative",
+          "value": "\"file_upload\".\"blob_chunks\".\"seq\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "file_upload.blobs": {
+      "name": "blobs",
+      "schema": "file_upload",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "name": "blobs_id_seq",
+            "increment": "1",
+            "minValue": "1",
+            "maxValue": "9223372036854775807",
+            "startWith": "1",
+            "cache": "1",
+            "cycle": false,
+            "schema": "file_upload",
+            "type": "always"
+          }
+        },
+        "size": {
+          "name": "size",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "stored_size": {
+          "name": "stored_size",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "chunk_size": {
+          "name": "chunk_size",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "chunk_count": {
+          "name": "chunk_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ref_count": {
+          "name": "ref_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        },
+        "encoding": {
+          "name": "encoding",
+          "type": "content_encoding",
+          "typeSchema": "file_upload",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sha256": {
+          "name": "sha256",
+          "type": "bytea",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "blobs_sha256_key": {
+          "name": "blobs_sha256_key",
+          "columns": [
+            {
+              "expression": "sha256",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "blobs_sha256_length": {
+          "name": "blobs_sha256_length",
+          "value": "octet_length(\"file_upload\".\"blobs\".\"sha256\") = 32"
+        },
+        "blobs_sizes_non_negative": {
+          "name": "blobs_sizes_non_negative",
+          "value": "\"file_upload\".\"blobs\".\"size\" >= 0 AND \"file_upload\".\"blobs\".\"stored_size\" >= 0"
+        },
+        "blobs_chunking_valid": {
+          "name": "blobs_chunking_valid",
+          "value": "\"file_upload\".\"blobs\".\"chunk_size\" > 0 AND \"file_upload\".\"blobs\".\"chunk_count\" >= 0"
+        },
+        "blobs_ref_count_non_negative": {
+          "name": "blobs_ref_count_non_negative",
+          "value": "\"file_upload\".\"blobs\".\"ref_count\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "file_upload.files": {
+      "name": "files",
+      "schema": "file_upload",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "blob_id": {
+          "name": "blob_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "original_size": {
+          "name": "original_size",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "width": {
+          "name": "width",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "height": {
+          "name": "height",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "content_type": {
+          "name": "content_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "files_blob_id_idx": {
+          "name": "files_blob_id_idx",
+          "columns": [
+            {
+              "expression": "blob_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "files_blob_id_blobs_id_fk": {
+          "name": "files_blob_id_blobs_id_fk",
+          "tableFrom": "files",
+          "columnsFrom": [
+            "blob_id"
+          ],
+          "tableTo": "blobs",
+          "schemaTo": "file_upload",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "restrict"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "files_name_length": {
+          "name": "files_name_length",
+          "value": "char_length(\"file_upload\".\"files\".\"name\") BETWEEN 1 AND 255"
+        },
+        "files_original_size_positive": {
+          "name": "files_original_size_positive",
+          "value": "\"file_upload\".\"files\".\"original_size\" > 0"
+        },
+        "files_dimensions_positive": {
+          "name": "files_dimensions_positive",
+          "value": "(\"file_upload\".\"files\".\"width\" IS NULL OR \"file_upload\".\"files\".\"width\" > 0) AND (\"file_upload\".\"files\".\"height\" IS NULL OR \"file_upload\".\"files\".\"height\" > 0)"
+        }
+      },
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "file_upload.content_encoding": {
+      "name": "content_encoding",
+      "schema": "file_upload",
+      "values": [
+        "identity",
+        "br"
+      ]
+    }
+  },
+  "schemas": {
+    "file_upload": "file_upload"
+  },
+  "views": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
